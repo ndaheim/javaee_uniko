@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--suppress UnnecessaryLabelJS -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:b="http://bootsfaces.net/ui"
+>
+
+<h:form id="navigation-bar">
+    <b:navBar brand="TSS" fluid="true" position="top" sticky="false">
+        <b:navbarLinks>
+            <b:navCommandLink
+                    action="#{topMenuBean.navigateTo('DASHBOARD')}"
+                    rendered="#{topMenuBean.getMenuItemVisibilityByView('DASHBOARD')}"
+                    value="Dashboard"/>
+
+            <b:navCommandLink
+                    action="#{topMenuBean.navigateTo('PERSON_MANAGEMENT')}"
+                    rendered="#{topMenuBean.getMenuItemVisibilityByView('PERSON_MANAGEMENT')}"
+                    value="#{msg['nav.personmanagement']}"/>
+
+            <b:navCommandLink
+                    action="#{topMenuBean.navigateTo('CONTRACT')}"
+                    rendered="#{topMenuBean.getMenuItemVisibilityByView('CONTRACT')}"
+                    value="#{msg['nav.contract']}"/>
+            <b:navCommandLink
+                    action="#{topMenuBean.navigateTo('TIMESHEET_OVERVIEW')}"
+                    rendered="#{topMenuBean.getMenuItemVisibilityByView('TIMESHEET_OVERVIEW')}"
+                    value="#{msg['nav.timesheet']}"/>
+        </b:navbarLinks>
+        <b:navbarLinks pull="right">
+            <b:dropMenu value="#{topMenuBean.getPersonFullName()}"
+                        rendered="#{topMenuBean.getMenuItemVisibility()}">
+
+                <b:navCommandLink
+                        value="#{msg['nav.profile']}"
+                        rendered="#{topMenuBean.getMenuItemVisibilityByView('PERSON_CONFIG')}"
+                        action="#{topMenuBean.navigateTo('PERSON_CONFIG')}"
+                />
+
+                <b:navCommandLink value="#{msg['nav.logout']}"
+                                  action="#{loginBean.logout()}"/>
+            </b:dropMenu>
+        </b:navbarLinks>
+    </b:navBar>
+</h:form>
+</html>

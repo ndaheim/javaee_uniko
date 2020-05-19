@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:b="http://bootsfaces.net/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html"
+>
+
+<b:form>
+    <b:tabView contentStyle="padding:10px">
+        <b:tab title="#{msg['workreport.waiting']}">
+            <ui:repeat value="#{timesheetBean.contract.timeSheets}" var="timesheet" varStatus="tsIter">
+                <b:accordion rendered="#{timesheetBean.isAdminWaitingTimeSheetVisible(timesheet)}">
+                    <b:panel title="#{timesheetBean.toFriendlyTitle(timesheet)}">
+
+                        <b:column>
+                            <b:dataTable
+                                    value="#{timesheetBean.contract.timeSheets[tsIter.index].workReports}"
+                                    var="workreport">
+                                <b:dataTableColumn
+                                        label="#{msg['workreport.type']}">#{workreport.type}</b:dataTableColumn>
+                                <b:dataTableColumn
+                                        label="#{msg['workreport.date']}">#{timesheetBean.toFriendlyDate(workreport.day)}</b:dataTableColumn>
+                                <b:dataTableColumn
+                                        label="#{msg['workreport.startTime']}">#{workreport.startTime}</b:dataTableColumn>
+                                <b:dataTableColumn
+                                        label="#{msg['workreport.endTime']}">#{workreport.endTime}</b:dataTableColumn>
+                                <b:dataTableColumn
+                                        label="#{msg['workreport.description']}">#{workreport.description}</b:dataTableColumn>
+                            </b:dataTable>
+                        </b:column>
+
+                        <b:column smallScreen="6" mediumScreen="6" largeScreen="6">
+                            <label for="wlHoursDue1">#{msg['workreport.hoursDue']}:&nbsp;</label>
+                            <h:outputText id="wlHoursDue1" value="#{timesheetBean.contract.timeSheets[tsIter.index].hoursDue}"/>
+                        </b:column>
+
+                        <b:column smallScreen="6" mediumScreen="6" largeScreen="6">
+                            <label for="wlHoursDone1">#{msg['workreport.hoursDone']}:&nbsp;</label>
+                            <h:outputText id="wlHoursDone1" value="#{timesheetBean.contract.timeSheets[tsIter.index].hoursDone}"/>
+                        </b:column>
+
+                        <b:column smallScreen="6" mediumScreen="6" largeScreen="6">
+                            <label for="wlBalance1">#{msg['workreport.hoursBalance']}:&nbsp;</label>
+                            <h:outputText id="wlBalance1" value="#{timesheetBean.contract.timeSheets[tsIter.index].hoursBalance}"/>
+                        </b:column>
+                        <b:column>
+                            <h:outputText
+                                    value="#{msg['workreport.signedByEmployee']}: #{timesheetBean.contract.timeSheets[tsIter.index].signedByEmployee}"/>
+                        </b:column>
+                        <b:column rendered="#{timesheetBean.isActiveForSecretary(timesheet)}">
+                            <h:outputText
+                                    value="#{msg['workreport.signedBySupervisor']}: #{timesheetBean.contract.timeSheets[tsIter.index].signedBySupervisor}"/>
+                        </b:column>
+
+                        <b:column>
+                            <b:buttonGroup>
+                                <b:commandButton rendered="#{timesheetBean.isActiveForSupervisor(timesheet)}"
+                                                 value="#{msg['workreport.requestChanges']}"
+                                                 action="#{timesheetBean.revokeSignature(tsIter.index)}"
+                                                 iconAwesome="reply"
+                                />
+                                <b:commandButton rendered="#{timesheetBean.isActiveForSupervisor(timesheet) and timesheetBean.supervisor}"
+                                                 value="#{msg['workreport.sign']}"
+                                                 action="#{timesheetBean.signSupervisor(tsIter.index)}"
+                                                 iconAwesome="check"
+                                />
+                                <b:commandButton
+                                        rendered="#{timesheetBean.isActiveForSecretary(timesheet) and not timesheetBean.isArchived(timesheet) and timesheetBean.secretary}"
+                                        value="#{msg['workreport.archive']}"
+                                        action="#{timesheetBean.archive(timesheet)}"
+                                        update="@form"
+                                        iconAwesome="archive"
+                                />
+                            </b:buttonGroup>
+                        </b:column>
+
+                    </b:panel>
+                </b:accordion>
+            </ui:repeat>
+        </b:tab>
+        <b:tab title="#{msg['workreport.archived']}">
+            <ui:repeat value="#{timesheetBean.contract.timeSheets}" var="timesheet" varStatus="tsIter">
+                <b:accordion
+                        rendered="#{(timesheetBean.supervisor and timesheetBean.isActiveForSupervisor(timesheet)) or (timesheetBean.secretary and timesheetBean.isActiveForSecretary(timesheet)) and timesheetBean.isArchived(timesheet)}">
+                    <b:panel title="#{timesheetBean.toFriendlyTitle(timesheet)}">
+                        <b:column>
+                            <b:dataTable
+                                    value="#{timesheetBean.contract.timeSheets[tsIter.index].workReports}"
+                                    var="workreport"
+                                    pdf="true"
+                                    csv="true"
+                                    print="true">
+                                <b:dataTableColumn
+                                        label="#{msg['workreport.type']}">#{workreport.type}</b:dataTableColumn>
+                                <b:dataTableColumn
+                                        label="#{msg['workreport.date']}">#{timesheetBean.toFriendlyDate(workreport.day)}</b:dataTableColumn>
+                                <b:dataTableColumn
+                                        label="#{msg['workreport.startTime']}">#{workreport.startTime}</b:dataTableColumn>
+                                <b:dataTableColumn
+                                        label="#{msg['workreport.endTime']}">#{workreport.endTime}</b:dataTableColumn>
+                                <b:dataTableColumn
+                                        label="#{msg['workreport.description']}">#{workreport.description}</b:dataTableColumn>
+                            </b:dataTable>
+                        </b:column>
+
+                        <b:column smallScreen="6" mediumScreen="6" largeScreen="6">
+                            <label for="wlHoursDue2">#{msg['workreport.hoursDue']}:&nbsp;</label>
+                            <h:outputText id="wlHoursDue2" value="#{timesheetBean.contract.timeSheets[tsIter.index].hoursDue}"/>
+                        </b:column>
+
+                        <b:column smallScreen="6" mediumScreen="6" largeScreen="6">
+                            <label for="wlHoursDone2">#{msg['workreport.hoursDone']}:&nbsp;</label>
+                            <h:outputText id="wlHoursDone2" value="#{timesheetBean.contract.timeSheets[tsIter.index].hoursDone}"/>
+                        </b:column>
+
+                        <b:column smallScreen="6" mediumScreen="6" largeScreen="6">
+                            <label for="wlBalance2">#{msg['workreport.hoursBalance']}:&nbsp;</label>
+                            <h:outputText id="wlBalance2" value="#{timesheetBean.contract.timeSheets[tsIter.index].hoursBalance}"/>
+                        </b:column>
+                        <b:column>
+                            <h:outputText
+                                    value="#{msg['workreport.signedByEmployee']}: #{timesheetBean.contract.timeSheets[tsIter.index].signedByEmployee}"/>
+                        </b:column>
+                        <b:column>
+                            <h:outputText
+                                    value="#{msg['workreport.signedBySupervisor']}: #{timesheetBean.contract.timeSheets[tsIter.index].signedBySupervisor}"/>
+                        </b:column>
+                    </b:panel>
+                </b:accordion>
+            </ui:repeat>
+        </b:tab>
+    </b:tabView>
+</b:form>
+</html>

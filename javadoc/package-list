@@ -1,0 +1,10 @@
+echo.beans
+echo.configuration
+echo.dao
+echo.dto
+echo.entities
+echo.logic
+echo.logic.impl
+echo.mapper
+echo.models
+echo.dto.util

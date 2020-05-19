@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:b="http://bootsfaces.net/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+>
+
+<h:head>
+    <title>TSS Echo - #{msg['nav.personmanagement']}</title>
+    <h:outputStylesheet library="css" name="style.css"/>
+    <link rel="icon" type="image/png" href="#{request.contextPath}/resources/images/icon.png"/>
+</h:head>
+
+<h:body>
+    <ui:include src="top-menu.xhtml"/>
+
+    <b:container fluid="true">
+        <b:column medium-screen="6" largeScreen="6">
+            <h:form id="person-table-form">
+                <b:dataTable id="person-table"
+                             value="#{personManagementBean.allPersons}"
+                             var="person"
+                             select="true"
+                             selected-rows="#{personManagementBean.getToSelect()}"
+                             selection-mode="single"
+                             ajax="true"
+                             responsive="true"
+                             style="width: 100%;"
+                             onselect="ajax:personManagementBean.onSelect(person)"
+                             update=":person-data-form"
+                >
+                    <b:dataTableColumn value="#{person.firstName} #{person.lastName}"
+                                       label="#{msg['person.persons']}"/>
+                </b:dataTable>
+            </h:form>
+        </b:column>
+        <b:column medium-screen="6" largeScreen="4">
+            <b:form id="person-data-form">
+                <b:formGroup>
+                    <b:row>
+                        <b:column medium-screen="8" largeScreen="8">
+                            <b:inputText id="firstname"
+                                         label="#{msg['person.firstname']}:"
+                                         value="#{personManagementBean.firstName}"
+                                         readonly="true"/>
+                        </b:column>
+                        <b:column medium-screen="8" largeScreen="8">
+                            <b:inputText id="lastname"
+                                         label="#{msg['person.lastname']}:"
+                                         value="#{personManagementBean.lastName}"
+                                         readonly="true"/>
+                        </b:column>
+                        <b:column medium-screen="8" largeScreen="8">
+                            <b:inputText id="email"
+                                         label="#{msg['person.email']}:"
+                                         value="#{personManagementBean.email}"
+                                         readonly="true"/>
+                        </b:column>
+                        <b:column medium-screen="8" largeScreen="8">
+                            <b:dateTimePicker label="#{msg['person.dayofbirth']}:"
+                                              allowInputToggle="true"
+                                              disabled="#{personManagementBean.isNoPersonSelected()}"
+                                              showTime="false"
+                                              value="#{personManagementBean.birthday}"/>
+                        </b:column>
+                        <b:column medium-screen="8" largeScreen="8">
+                            <b:selectMultiMenu
+                                    disabled="#{personManagementBean.isNoPersonSelected()}"
+                                    label="#{msg['person.roles']}:"
+                                    value="#{personManagementBean.selectedRoles}"
+                                    styleClass="full-multiselect-width"
+                            >
+                                    <f:selectItems value="#{personManagementBean.getAvailableRoles()}"
+                                                   var="r"
+                                                   itemValue="#{r.name.name()}"
+                                                   itemLabel="#{r.getLocalizedName()}"/>
+                            </b:selectMultiMenu>
+                        </b:column>
+
+                        <b:column medium-screen="8" largeScreen="8">
+                            <label for="uni-role-badges">#{msg['person.uniroles']}:</label>
+                            <br/>
+                            <h:outputText id="uni-role-badges" value="#{personManagementBean.getUniRolesBadges()}"
+                                          escape="false"/>
+                        </b:column>
+
+                        <b:column medium-screen="8" largeScreen="8">
+                            <b:commandButton value="#{msg['save']}"
+                                             action="#{personManagementBean.save()}"
+                                             disabled="#{personManagementBean.isNoPersonSelected()}"
+                                             update=":person-table-form"
+                                             look="primary"
+                                             style="width:100%; margin-top:15px;"/>
+                        </b:column>
+                    </b:row>
+                </b:formGroup>
+            </b:form>
+        </b:column>
+    </b:container>
+</h:body>
+</html>

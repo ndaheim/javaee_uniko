@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:b="http://bootsfaces.net/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+>
+
+<h:head>
+    <title>TSS Echo - #{msg['nav.contract']}</title>
+    <h:outputStylesheet library="css" name="style.css"/>
+    <link rel="icon" type="image/png" href="#{request.contextPath}/resources/images/icon.png"/>
+</h:head>
+
+<h:body>
+    <ui:include src="top-menu.xhtml"/>
+    <div align="center" class="hide-screen">
+        <br/>
+        <h2>#{msg['contract.title']}</h2>
+        <hr/>
+        <h4>#{contractManagementBean.selectedContract.description}</h4>
+        <h4>#{contractManagementBean.selectedContract.employee.getFullName()}</h4>
+        <hr/>
+    </div>
+    <span class="hide-print">
+        <b:modal styleClass="terminateContractModal" title="#{msg['contract.termination.modal.title']}">
+            <b:form id="contract-terminate-form">
+                <h:outputText value="#{contractManagementBean.getTerminationContractMessage()}" escape="false"/>
+            </b:form>
+            <f:facet name="footer">
+                <b:form>
+                    <b:button value="#{msg['dialog.close']}" dismiss="modal"/>
+                    <b:commandButton value="#{msg['dialog.ok']}"
+                                     look="primary"
+                                     dismiss="modal"
+                                     update=":contract-data-form :contract-table-form"
+                                     actionListener="#{contractManagementBean.terminateContract()}"
+                                     onclick="$('.terminateContractModal').modal('hide');"
+                    />
+                </b:form>
+            </f:facet>
+        </b:modal>
+
+        <b:modal styleClass="contractStatsModal" title="#{msg['contract.stats.modal.title']}">
+            <b:form id="contract-stats-form">
+            <!--Evtl mit Diagrammen arbeiten: https://showcase.bootsfaces.net/integration/HighFaces.jsf-->
+                <label for="contract-stats-hours-due">#{msg['stats.hours.due']}:&nbsp;</label>
+                <h:outputText id="contract-stats-hours-due"
+                              value="#{contractManagementBean.selectedContract.hoursDue}"/>
+                <br/>
+                <label for="contract-stats-hours-done">#{msg['stats.hours.done']}:&nbsp;</label>
+                <h:outputText id="contract-stats-hours-done"
+                              value="#{contractManagementBean.selectedContract.hoursDone}"/>
+                <br/>
+                <label for="contract-stats-hours-balance">#{msg['stats.hours.balance']}:&nbsp;</label>
+                <h:outputText id="contract-stats-hours-balance"
+                              value="#{contractManagementBean.selectedContract.hoursBalance}"/>
+            </b:form>
+            <f:facet name="footer">
+                <b:form>
+                    <b:button value="#{msg['dialog.close']}" dismiss="modal"/>
+                </b:form>
+            </f:facet>
+        </b:modal>
+    </span>
+
+    <b:container fluid="true">
+        <b:column class="content" style=" margin-bottom:15px;">
+            <b:column medium-screen="6" largeScreen="6">
+                <b:form id="contract-command-buttons" styleClass="hide-print">
+                    <b:formGroup>
+                        <b:buttonToolbar orientation="horizontal">
+                            <b:buttonGroup>
+                                <b:commandButton
+                                        look="primary"
+                                        ajax="true"
+                                        iconAwesome="plus"
+                                        update=":contract-data-form"
+                                        actionListener="#{contractManagementBean.createNew()}"
+                                        title="#{msg['contract.newContract']}"
+                                />
+                                <b:commandButton
+                                        look="danger"
+                                        disabled="#{contractManagementBean.isContractReadOnly()}"
+                                        iconAwesome="trash"
+                                        ajax="true"
+                                        autoUpdate="true"
+                                        update=":contract-data-form :contract-table-form"
+                                        actionListener="#{contractManagementBean.delete()}"
+                                        title="#{msg['contract.deleteContract']}"
+                                />
+                            </b:buttonGroup>
+
+                            <b:buttonGroup>
+                                <b:commandButton
+                                        look="success"
+                                        disabled="#{!contractManagementBean.canUserStartContract()}"
+                                        iconAwesome="caret-square-o-right"
+                                        ajax="true"
+                                        autoUpdate="true"
+                                        update=":contract-data-form :contract-table-form"
+                                        actionListener="#{contractManagementBean.startContract()}"
+                                        title="#{msg['contract.startContract']}"
+                                />
+                                <b:button
+                                        look="danger"
+                                        disabled="#{!contractManagementBean.canContractTerminate()}"
+                                        iconAwesome="close"
+                                        autoUpdate="true"
+                                        onclick="$('.terminateContractModal').modal()"
+                                        title="#{msg['contract.terminateContract']}"
+                                />
+                            </b:buttonGroup>
+
+                            <b:buttonGroup>
+                                <b:commandButton
+                                        ajax="true"
+                                        autoUpdate="true"
+                                        disabled="#{contractManagementBean.isNoContractSelected()}"
+                                        iconAwesome="print"
+                                        onclick="window.print()"
+                                        title="#{msg['contract.printContract']}"
+                                />
+                                <b:button
+                                        ajax="true"
+                                        autoUpdate="true"
+                                        iconAwesome="bar-chart"
+                                        disabled="#{contractManagementBean.isNoContractSelected()}"
+                                        onclick="$('.contractStatsModal').modal()"
+                                        title="#{msg['contract.stats']}"
+                                />
+                            </b:buttonGroup>
+                        </b:buttonToolbar>
+                    </b:formGroup>
+                </b:form>
+
+                <h:form id="contract-table-form" styleClass="hide-print">
+                    <b:dataTable id="contract-table"
+                                 value="#{contractManagementBean.allContracts}"
+                                 var="contract"
+                                 select="true"
+                                 selection-mode="single"
+                                 ajax="true"
+                                 responsive="true"
+                                 style="width: 100%;"
+                                 onselect="ajax:contractManagementBean.onSelect(contract)"
+                                 update=":contract-data-form :contract-stats-form :contract-terminate-form"
+                    >
+                        <b:dataTableColumn value="#{contract.id}"
+                                           label="#{msg['contract.id']}"/>
+                        <b:dataTableColumn value="#{contract.employee.getFullName()}"
+                                           label="#{msg['role.employee']}"/>
+                        <b:dataTableColumn value="#{contract.startDate}"
+                                           label="#{msg['contract.startdate']}"/>
+                        <b:dataTableColumn value="#{contract.status.localizedName}"
+                                           label="#{msg['contract.status']}"/>
+                    </b:dataTable>
+                </h:form>
+            </b:column>
+            <b:column medium-screen="6" largeScreen="4">
+                <b:form id="contract-data-form">
+                    <b:formGroup>
+                        <b:column medium-screen="10" largeScreen="10" styleClass="hide-print">
+                            <b:inputText label="#{msg['id']}:"
+                                         readonly="true"
+                                         value="#{contractManagementBean.selectedContract.id}"
+                            />
+                        </b:column>
+                        <b:column medium-screen="10" largeScreen="10">
+                            <b:inputText id="employee"
+                                         label="#{msg['person.email']}:"
+                                         value="#{contractManagementBean.selectedContract.employee.emailAddress}"
+                            />
+                        </b:column>
+                        <b:column medium-screen="10" largeScreen="10">
+                            <b:inputText label="#{msg['contract.description']}:"
+                                         value="#{contractManagementBean.selectedContract.description}"
+                            />
+                        </b:column>
+                        <b:column  medium-screen="10" largeScreen="10" styleClass="hide-print">
+                            <b:selectOneMenu label="#{msg['contract.status']}:"
+                                             value="#{contractManagementBean.selectedContract.status}">
+                                    <f:selectItems value="#{contractManagementBean.allContractStatus}"
+                                                   var="r"
+                                                   itemValue="#{r}"
+                                                   itemLabel="#{r.getLocalizedName()}"/>
+                            </b:selectOneMenu>
+                        </b:column>
+                        <b:column medium-screen="10" largeScreen="10">
+                            <b:selectOneMenu label="#{msg['contract.frequency']}:"
+                                             value="#{contractManagementBean.selectedContract.frequency}">
+                                    <f:selectItems value="#{contractManagementBean.allFrequencies}"
+                                                   var="f"
+                                                   itemValue="#{f}"
+                                                   itemLabel="#{f.getLocalizedName()}"/>
+                            </b:selectOneMenu>
+                        </b:column>
+                        <b:column medium-screen="10" largeScreen="10">
+                            <b:selectOneMenu label="#{msg['contract.federal.state']}:"
+                                             value="#{contractManagementBean.selectedContract.federalState}">
+                                    <f:selectItems value="#{contractManagementBean.allFederalStates}"
+                                                   var="fs"
+                                                   itemValue="#{fs}"
+                                                   itemLabel="#{fs.getLocalizedName()}"/>
+                            </b:selectOneMenu>
+                        </b:column>
+                        <b:column medium-screen="10" largeScreen="10">
+                            <b:dateTimePicker label="#{msg['contract.startdate']}:"
+                                              allowInputToggle="true"
+                                              showTime="false"
+                                              converter="localDateConverter"
+                                              format="MM-YYYY"
+                                              value="#{contractManagementBean.selectedContract.startDate}"
+                            >
+                                <f:attribute name="format" value="MM-YYYY"/>
+                            </b:dateTimePicker>
+                        </b:column>
+                        <b:column medium-screen="10" largeScreen="10">
+                            <b:dateTimePicker label="#{msg['contract.enddate']}:"
+                                              allowInputToggle="true"
+                                              showTime="false"
+                                              converter="localDateConverter"
+                                              format="MM-YYYY"
+                                              value="#{contractManagementBean.selectedContract.endDate}">
+                                <f:attribute name="format" value="MM-YYYY" />
+                            </b:dateTimePicker>
+                        </b:column>
+                        <b:column medium-screen="10" largeScreen="10">
+                            <b:dateTimePicker label="#{msg['contract.terminationdate']}:"
+                                              allowInputToggle="true"
+                                              showTime="false"
+                                              readonly="true"
+                                              converter="localDateConverter"
+                                              value="#{contractManagementBean.selectedContract.terminationDate}"/>
+                        </b:column>
+                        <b:column medium-screen="10" largeScreen="10">
+                            <b:inputText id="hoursperweek"
+                                         mask="decimal"
+                                         label="#{msg['contract.hoursperweek']}:"
+                                         value="#{contractManagementBean.selectedContract.hoursPerWeek}"
+                            />
+                        </b:column>
+                        <b:column medium-screen="10" largeScreen="10">
+                            <b:inputText id="archiveduration"
+                                         mask="numeric"
+                                         label="#{msg['contract.archiveDuration']}:"
+                                         value="#{contractManagementBean.selectedContract.archiveDuration}"
+                            />
+                        </b:column>
+                        <b:column medium-screen="10" largeScreen="10">
+                            <label for="contract-delegate-list">#{msg['role.delegate']}:</label>
+                            <br/>
+                            <ul>
+                                <ui:repeat id="contract-delegate-list"
+                                           value="#{contractManagementBean.selectedContract.delegates}"
+                                           varStatus="status"
+                                           ajax="true"
+                                           var="d">
+                                    <li>
+                                        <h:outputText value="#{d.emailAddress}"/>
+                                        &nbsp;
+                                        <span class="hide-print">
+                                               <b:commandButton icon="trash"
+                                                                onclick="ajax:contractManagementBean.deleteDelegateChoice(d)"
+                                                                ajax="true"
+                                                                update=":contract-data-form"
+                                               />
+                                            </span>
+                                    </li>
+                                </ui:repeat>
+                            </ul>
+                            <span class="hide-print">
+                                    <b:inputText value="#{contractManagementBean.newDelegateChoice}"
+                                                 placeholder="#{msg['person.email']}"
+                                                 typeahead="true"
+                                                 typeaheadValues="#{contractManagementBean.getAllDelegates()}"
+                                    >
+                                    <f:facet name="append">
+                                        <b:commandButton
+                                                onclick="ajax:contractManagementBean.addDelegateChoice()"
+                                                iconAwesome="plus"
+                                                icon-align="right"
+                                                ajax="true"
+                                                update=":contract-data-form"
+                                        />
+                                    </f:facet>
+                                    </b:inputText>
+                                </span>
+                        </b:column>
+                        <b:column medium-screen="10" largeScreen="10">
+                            <label for="contractSecretaryList">#{msg['role.secretary']}:</label>
+                            <br/>
+                            <ul>
+                                <ui:repeat id="contractSecretaryList"
+                                           value="#{contractManagementBean.selectedContract.secretaries}"
+                                           varStatus="status"
+                                           var="s">
+                                    <li>
+                                        <h:outputText value="#{s.emailAddress}"/>
+                                        &nbsp;
+                                        <span class="hide-print">
+                                                <b:commandButton icon="trash"
+                                                                 onclick="ajax:contractManagementBean.deleteSecretaryChoice(s)"
+                                                                 ajax="true"
+                                                                 update=":contract-data-form"
+                                                />
+                                            </span>
+
+                                    </li>
+                                </ui:repeat>
+                            </ul>
+                            <span class="hide-print">
+                                    <b:inputText value="#{contractManagementBean.newSecretaryChoice}"
+                                                 placeholder="#{msg['person.email']}"
+                                                 typeahead="true"
+                                                 typeaheadValues="#{contractManagementBean.getAllSecretaries()}"
+                                    >
+                                    <f:facet name="append">
+                                        <b:commandButton
+                                                onclick="ajax:contractManagementBean.addSecretaryChoice()"
+                                                iconAwesome="plus"
+                                                icon-align="right"
+                                                ajax="true"
+                                                update=":contract-data-form"
+                                        />
+                                    </f:facet>
+                                    </b:inputText>
+                                </span>
+
+                        </b:column>
+
+                        <b:column medium-screen="10" largeScreen="10" styleClass="form-group">
+                            <b:inputText label="#{msg['role.supervisor']}:"
+                                         value="#{contractManagementBean.selectedContract.supervisor.emailAddress}"
+                                         placeholder="#{msg['person.email']}"
+                                         typeahead="true"
+                                         typeaheadValues="#{contractManagementBean.getAllSupervisor()}"
+                            />
+                        </b:column>
+
+                        <b:column medium-screen="full-width" largeScreen="full-width" styleClass="hide-print"
+                                  rendered="#{contractManagementBean.showErrorMessages()}">
+                            <b:alert severity="danger" title="#{msg['contract.error']}" closable="true">
+                                <h:outputText value="#{contractManagementBean.errorMessages}" escape="false"/>
+                            </b:alert>
+                        </b:column>
+
+                        <b:column medium-screen="10" largeScreen="10" styleClass="hide-print">
+                            <b:commandButton value="#{msg['save']}"
+                                             action="#{contractManagementBean.save()}"
+                                             update=":contract-table-form :contract-data-form"
+                                             look="primary"
+                                             disabled="#{contractManagementBean.isContractSaveButtonDisabled()}"
+                                             style="width:100%;"
+                            />
+                        </b:column>
+                    </b:formGroup>
+                </b:form>
+            </b:column>
+        </b:column>
+    </b:container>
+</h:body>
+</html>

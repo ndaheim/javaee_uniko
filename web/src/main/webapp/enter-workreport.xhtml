@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:b="http://bootsfaces.net/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+>
+    <b:container fluid="true">
+
+            <ui:repeat id="contract-list"
+                       value="#{enterWorkReportBean.workReports}"
+                       var="c">
+                <b:form id="work-report-form">
+                <b:column medium-screen="6" largeScreen="4">
+                    <b:panel title="#{msg['workreport.panel.title']}:&nbsp;#{c.contract.description} (##{c.contract.id})"
+                             collapsible="false"
+                             look="primary">
+
+                        <b:column smallScreen="12" mediumScreen="12" largeScreen="12">
+                            <label for="wlDescription">#{msg['contract.description']}:&nbsp;</label>
+                            <h:outputText id="wlDescription" value="#{c.timeSheet.description}"/>
+                        </b:column>
+
+                        <b:column smallScreen="6" mediumScreen="6" largeScreen="6">
+                            <label for="wlStartDate">#{msg['workreport.startDate']}:&nbsp;</label>
+                            <h:outputText id="wlStartDate" value="#{c.timeSheet.startDate}"/>
+                        </b:column>
+
+                        <b:column smallScreen="6" mediumScreen="6" largeScreen="6">
+                            <label for="wlEndDate">#{msg['workreport.endDate']}:&nbsp;</label>
+                            <h:outputText id="wlEndDate" value="#{c.timeSheet.endDate}"/>
+                        </b:column>
+
+                        <b:column smallScreen="6" mediumScreen="6" largeScreen="6">
+                            <label for="wlHoursDue">#{msg['workreport.hoursDue']}:&nbsp;</label>
+                            <h:outputText id="wlHoursDue" value="#{c.timeSheet.hoursDue}"/>
+                        </b:column>
+
+                        <b:column smallScreen="6" mediumScreen="6" largeScreen="6">
+                            <label for="wlHoursDone">#{msg['workreport.hoursDone']}:&nbsp;</label>
+                            <h:outputText id="wlHoursDone" value="#{c.timeSheet.hoursDone}"/>
+                        </b:column>
+
+                        <b:column smallScreen="6" mediumScreen="6" largeScreen="6">
+                            <label for="wlBalance">#{msg['workreport.hoursBalance']}:&nbsp;</label>
+                            <h:outputText id="wlBalance" value="#{c.timeSheet.hoursBalance}"/>
+                        </b:column>
+
+                        <b:column smallScreen="12" mediumScreen="12" largeScreen="12">
+                            <hr/>
+                        </b:column>
+
+                        <h:inputHidden id="timeValidate" value="true">
+                            <f:validator validatorId="timeValidator" />
+                            <f:attribute name="startTime" value="#{startTime}" />
+                            <f:attribute name="endTime" value="#{endTime}" />
+                        </h:inputHidden>
+                        <h:inputHidden id="dateValidate" value="true">
+                            <f:validator binding="#{dateValidator}" />
+                            <f:attribute name="timeSheetDTO" value="#{c.timeSheet}" />
+                            <f:attribute name="date" value="#{date}" />
+                        </h:inputHidden>
+
+                        <b:column smallScreen="6" mediumScreen="6" largeScreen="6">
+                            <b:selectOneMenu label="#{msg['workreport.type']}:"
+                                             value="#{c.workReport.type}"
+                            >
+                                    <f:selectItems value="#{enterWorkReportBean.getAllTypes()}"
+                                                   var="t"
+                                                   itemValue="#{t}"
+                                                   itemLabel="#{t.getLocalizedName()}"/>
+                            </b:selectOneMenu>
+                        </b:column>
+
+                        <b:column medium-screen="6" largeScreen="6">
+                            <b:inputText label="#{msg['workreport.description']}:"
+                                         value="#{c.workReport.description}"
+                            />
+                        </b:column>
+
+                        <b:column smallScreen="12" mediumScreen="12" largeScreen="12">
+                            <b:dateTimePicker
+                                    value="#{c.workReport.day}"
+                                    binding="#{date}"
+                                    showTime="false"
+                                    format="MM/DD/YYYY"
+                                    allowInputToggle="true"
+                                    converter="localDateConverter"
+                                    label="#{msg['workreport.date']}"
+                                    minDate="#{c.timeSheet.startDate}"
+                                    maxDate="#{c.timeSheet.endDate}"
+                            />
+                        </b:column>
+
+                        <b:column smallScreen="6" mediumScreen="6" largeScreen="6">
+                            <b:dateTimePicker
+                                    value="#{c.workReport.startTime}"
+                                    binding="#{startTime}"
+                                    showDate="false"
+                                    format="HH:mm"
+                                    converter="timeConverter"
+                                    label="#{msg['workreport.startTime']}"
+                                    allowInputToggle="true"
+                            />
+                        </b:column>
+
+                        <b:column smallScreen="6" mediumScreen="6" largeScreen="6">
+                            <b:dateTimePicker
+                                    value="#{c.workReport.endTime}"
+                                    binding="#{endTime}"
+                                    showDate="false"
+                                    format="HH:mm"
+                                    converter="timeConverter"
+                                    label="#{msg['workreport.endTime']}"
+                                    allowInputToggle="true"
+                            />
+                        </b:column>
+
+                        <b:column smallScreen="12" mediumScreen="12" largeScreen="12">
+                            <b:message for="timeValidate" />
+                            <b:message for="dateValidate" />
+                            <b:commandButton
+                                    onclick="ajax:enterWorkReportBean.saveEnteredWorkHours(c)"
+                                    iconAwesome="plus"
+                                    icon-align="left"
+                                    value="#{msg['workreport.add']}"
+                                    ajax="true"
+                                    update="@form"
+                                    style="width: 100%"
+                            />
+                        </b:column>
+
+
+                    </b:panel>
+                </b:column>
+                </b:form>
+            </ui:repeat>
+    </b:container>
+</html>

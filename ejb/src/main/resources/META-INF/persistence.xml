@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<persistence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version="2.0" xmlns="http://java.sun.com/xml/ns/persistence">
+
+    <persistence-unit name="default" transaction-type="JTA">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <jta-data-source>echo_tss_resource</jta-data-source>
+
+        <!--List of Entities-->
+        <class>echo.entities.Contract</class>
+        <class>echo.entities.Person</class>
+        <class>echo.entities.PersonConfig</class>
+        <class>echo.entities.Role</class>
+        <class>echo.entities.Reminder</class>
+        <class>echo.entities.TimeSheet</class>
+        <class>echo.entities.WorkReport</class>
+
+        <properties>
+            <property name="javax.persistence.schema-generation.database.action" value="create"/>
+            <property name="eclipselink.logging.level" value="FINE"/>
+            <property name="eclipselink.logging.parameters" value="true"/>
+            <property name="eclipselink.logging.timestamp" value="false"/>
+
+            <!--Due to caching issues-->
+            <!--<property name="eclipselink.cache.shared.default" value="false"/>-->
+
+            <!--File will be located at '...\payara5\glassfish\domains\domain1\config' -->
+            <!--<property name="eclipselink.ddl-generation.output-mode" value="sql-script"/>-->
+            <!--<property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>-->
+            <!--<property name="eclipselink.create-ddl-jdbc-file-name" value="create.sql"/>-->
+        </properties>
+    </persistence-unit>
+
+</persistence>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:b="http://bootsfaces.net/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+>
+
+<h:head>
+    <title>TSS Echo - #{msg['nav.profile']}</title>
+    <h:outputStylesheet library="css" name="style.css"/>
+    <link rel="icon" type="image/png" href="#{request.contextPath}/resources/images/icon.png"/>
+</h:head>
+
+<h:body>
+    <ui:include src="top-menu.xhtml"/>
+
+    <b:container fluid="true">
+        <b:column medium-screen="4">
+            <h:form id="person-config-form">
+                <b:column medium-screen="full">
+                    <b:selectOneMenu value="#{profileBean.language}"
+                                     autoUpdate="true"
+                                     label="#{msg['nav.language']}:"
+                                     label-style="width:150px">
+                        <f:selectItems value="#{profileBean.allLanguages}"
+                                       var="locale"
+                                       itemValue="#{locale.toLanguageTag()}"
+                                       itemLabel="#{locale.getDisplayName()}"/>
+                    </b:selectOneMenu>
+                </b:column>
+
+                <b:column span="6">
+                    <b:commandButton value="#{msg['save']}"
+                                     onclick="ajax:profileBean.save()"
+                                     look="primary"
+                                     update="@(body>*)"
+                                     style="width:100%"
+                    />
+                </b:column>
+            </h:form>
+        </b:column>
+    </b:container>
+</h:body>
+</html>

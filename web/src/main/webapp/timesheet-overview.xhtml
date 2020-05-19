@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:b="http://bootsfaces.net/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+>
+
+<h:head>
+    <title>TSS Echo - #{msg['nav.timesheet']}</title>
+    <h:outputStylesheet library="css" name="style.css"/>
+    <link rel="icon" type="image/png" href="#{request.contextPath}/resources/images/icon.png"/>
+</h:head>
+
+<h:body>
+    <ui:include src="top-menu.xhtml"/>
+
+    <b:container fluid="true">
+        <b:column class="content">
+            <b:row>
+            <b:column medium-screen="full-width" largeScreen="full-width">
+                <h:form id="contract-timesheet-form">
+                    <b:dataTable id="contract-timsheet-table"
+                                 value="#{timesheetBean.allContracts}"
+                                 var="contract"
+                                 select="true"
+                                 selection-mode="single"
+                                 ajax="true"
+                                 responsive="true"
+                                 style="width: 100%;"
+                                 onselect="ajax:timesheetBean.onSelect(contract)"
+                                 update=":contract-timesheet-data"
+                    >
+                        <b:dataTableColumn value="#{contract.id}"
+                                           label="#{msg['contract.id']}"/>
+                        <b:dataTableColumn value="#{contract.employee.getFullName()}"
+                                           label="#{msg['role.employee']}"/>
+                        <b:dataTableColumn value="#{contract.startDate}"
+                                           label="#{msg['contract.startdate']}"/>
+                        <b:dataTableColumn value="#{contract.status.localizedName}"
+                                           label="#{msg['contract.status']}"/>
+                    </b:dataTable>
+                </h:form>
+            </b:column>
+            </b:row>
+
+            <hr/>
+
+            <b:row>
+            <b:column medium-screen="full-width" largeScreen="full-width" id="contract-timesheet-data">
+
+                <b:row rendered="#{timesheetBean.isContractSelected()}">
+                    <h1>#{msg['contract.title']}&nbsp;#{timesheetBean.contract.id}</h1>
+                </b:row>
+
+                <b:row rendered="#{timesheetBean.renderTimesheetManagement()}">
+                    <h3>#{msg['timesheet.management']}</h3>
+
+                    <ui:include src="timesheet.xhtml"/>
+                </b:row>
+
+                <b:row rendered="#{timesheetBean.renderTimesheetAdministration()}">
+                    <h3>#{msg['timesheet.admin']}</h3>
+
+                    <ui:include src="timesheet-admin.xhtml"/>
+                </b:row>
+
+            </b:column>
+            </b:row>
+        </b:column>
+    </b:container>
+</h:body>
+</html>
